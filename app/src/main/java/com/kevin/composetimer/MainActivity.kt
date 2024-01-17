@@ -43,7 +43,7 @@ import java.util.Timer
 
 class MainActivity : ComponentActivity() {
 
-    var timerService: TimerService? = null
+   lateinit var timerService: TimerService
     var isBound = false
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -91,34 +91,28 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Timer(timer: TimerService?, modifier: Modifier = Modifier) {
 
-    var time by remember { mutableStateOf("") }
+    val time =timer?.getTimer()?.collectAsStateWithLifecycle()
     var isRunning by remember {
         mutableStateOf(false)
     }
 
-    LaunchedEffect(key1 = true) {
-        timer?.getTimer()?.collect {
-            time = it.toTime()
-        }
-    }
-
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround
+        verticalArrangement = Arrangement.SpaceAround,
+        modifier = Modifier.padding(10.dp)
     ) {
         Box(
             modifier = Modifier
-                .width(350.dp)
+                .fillMaxWidth()
                 .height(200.dp)
                 .padding(20.dp)
                 .background(Color.Cyan, RoundedCornerShape(10.dp))
         ) {
             Text(
-                text = time,
+                text = time?.value?.toTime().toString(),
                 modifier = modifier
                     .align(Alignment.Center),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.ExtraBold
             )
         }
@@ -140,7 +134,5 @@ fun Timer(timer: TimerService?, modifier: Modifier = Modifier) {
             )
         }
     }
-
-
 }
 
